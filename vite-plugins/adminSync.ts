@@ -110,7 +110,8 @@ export function adminSync(): Plugin {
       // Ship the current admin snapshot with the static build (read-only there).
       if (!fs.existsSync(dataDir())) return;
       const out = path.join(root, 'dist', DIR);
-      fs.cpSync(dataDir(), out, { recursive: true });
+      // backups/ stays local — only the live catalogue and its uploads are published
+      fs.cpSync(dataDir(), out, { recursive: true, filter: (src) => !src.includes(`${path.sep}backups`) });
     },
   };
 }
