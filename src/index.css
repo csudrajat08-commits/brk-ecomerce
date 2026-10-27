@@ -1,0 +1,206 @@
+@import 'tailwindcss';
+
+/* ------------------------------------------------------------------
+   BRK design tokens
+   ------------------------------------------------------------------ */
+@theme {
+  --color-ivory: #f6f3ed;
+  --color-ink: #242424;
+  --color-sand: #ded5c8;
+  --color-bronze: #a48b70;
+  --color-paper: #ffffff;
+  --color-mist: #ece7df; /* ivory/sand midpoint for quiet fills */
+  --color-stone: #6f6a63; /* secondary text on ivory, AA at 14px */
+  --color-line: #d9d1c5;
+  --color-danger: #9b3b2f;
+
+  --font-serif: 'Bodoni Moda', 'Didot', 'Bodoni MT', Georgia, serif;
+  --font-sans: 'Jost', 'Futura', 'Helvetica Neue', Arial, sans-serif;
+
+  --text-eyebrow: 0.6875rem;
+  --text-eyebrow--letter-spacing: 0.22em;
+
+  --ease-editorial: cubic-bezier(0.22, 1, 0.36, 1);
+
+  --breakpoint-3xl: 1720px;
+}
+
+@layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+  body {
+    @apply bg-ivory font-sans text-ink;
+    font-weight: 400;
+  }
+  ::selection {
+    background: var(--color-bronze);
+    color: var(--color-paper);
+  }
+  :focus-visible {
+    outline: 1px solid currentColor;
+    outline-offset: 3px;
+  }
+  button {
+    cursor: pointer;
+  }
+  img {
+    user-select: none;
+  }
+}
+
+@layer components {
+  .container-brk {
+    @apply mx-auto w-full max-w-[1520px] px-5 md:px-10 xl:px-14;
+  }
+
+  .eyebrow {
+    @apply font-sans text-eyebrow font-medium uppercase;
+  }
+
+  .display {
+    @apply font-serif font-normal;
+    letter-spacing: -0.02em;
+    line-height: 0.95;
+  }
+
+  /* Underline that draws in on hover — used for editorial text links */
+  .link-draw {
+    background-image: linear-gradient(currentColor, currentColor);
+    background-size: 0% 1px;
+    background-position: 0 100%;
+    background-repeat: no-repeat;
+    transition: background-size 0.5s var(--ease-editorial);
+    padding-bottom: 2px;
+  }
+  .link-draw:hover,
+  .group:hover .link-draw,
+  .link-draw[aria-current='page'] {
+    background-size: 100% 1px;
+  }
+  .link-under {
+    background-image: linear-gradient(currentColor, currentColor);
+    background-size: 100% 1px;
+    background-position: 0 100%;
+    background-repeat: no-repeat;
+    padding-bottom: 3px;
+  }
+
+  .field {
+    @apply h-12 w-full border-0 border-b border-ink/25 bg-transparent px-0 font-sans text-[0.95rem] text-ink placeholder:text-stone/70 focus:border-ink focus:ring-0 focus:outline-none;
+  }
+}
+
+/* Touch replacement for hover: active while the element is mid-viewport
+   (see src/hooks/useTouchInView.ts). Never applies on mouse devices. */
+@custom-variant inview {
+  @media (hover: none) {
+    &[data-inview] {
+      @slot;
+    }
+  }
+}
+@custom-variant group-inview {
+  @media (hover: none) {
+    &:is(:where(.group)[data-inview] *) {
+      @slot;
+    }
+  }
+}
+
+@media (hover: none) {
+  .group[data-inview]:not(article) .link-draw {
+    background-size: 100% 1px;
+  }
+}
+
+@utility btn {
+  @apply inline-flex h-12 items-center justify-center gap-3 px-8 font-sans text-[0.75rem] font-medium tracking-[0.18em] uppercase transition-[color,background-color,border-color,transform] duration-300 active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-40;
+}
+@utility btn-ink {
+  @apply btn bg-ink text-ivory hover:bg-black;
+}
+@utility btn-light {
+  @apply btn bg-ivory text-ink hover:bg-paper;
+}
+@utility btn-outline {
+  @apply btn border border-ink/80 text-ink hover:bg-ink hover:text-ivory;
+}
+@utility btn-outline-light {
+  @apply btn border border-ivory/70 text-ivory hover:bg-ivory hover:text-ink;
+}
+
+@utility scrollbar-none {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Dual range slider: two stacked inputs, only the thumbs take pointer events */
+.range-thumb {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  appearance: none;
+  background: transparent;
+  pointer-events: none;
+}
+.range-thumb::-webkit-slider-thumb {
+  appearance: none;
+  pointer-events: auto;
+  width: 16px;
+  height: 16px;
+  border-radius: 999px;
+  background: var(--color-ivory);
+  border: 1px solid var(--color-ink);
+  cursor: grab;
+  transition: transform 0.2s;
+}
+.range-thumb::-webkit-slider-thumb:active {
+  transform: scale(1.2);
+}
+.range-thumb::-moz-range-thumb {
+  pointer-events: auto;
+  width: 16px;
+  height: 16px;
+  border-radius: 999px;
+  background: var(--color-ivory);
+  border: 1px solid var(--color-ink);
+  cursor: grab;
+}
+.range-thumb:focus-visible::-webkit-slider-thumb {
+  outline: 1px solid var(--color-ink);
+  outline-offset: 3px;
+}
+
+/* Invoice printing: A4, document only */
+@media print {
+  @page {
+    size: A4;
+    margin: 14mm;
+  }
+  body {
+    background: #fff !important;
+  }
+}
+
+@keyframes brk-progress {
+  from {
+    width: 0%;
+  }
+  to {
+    width: 100%;
+  }
+}
